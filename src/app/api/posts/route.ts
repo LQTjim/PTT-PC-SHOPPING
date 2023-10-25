@@ -1,13 +1,27 @@
 import * as cheerio from "cheerio";
 
 import { NextRequest, NextResponse } from "next/server";
-
-export async function GET(req: NextRequest) {
+/* API function可以有第二個參數context ex:{ params }: { params: { page: string } 可以根據file folder的[slug]擷取參數另外一種用法是[[...slug]]第二種方式可以在打API的時候不加這個參數，但是後面參數會變成陣列形式。最後決定用body傳參。-而fetch fn 在GET的時候無法傳BODY最後只能用POST */
+export async function POST(req: NextRequest) {
   const result: ResponseData = { rows: [], nextPage: "" };
-  const res = await fetch(`https://www.ptt.cc/bbs/PC_Shopping/index.html`, {
-    //server端取消快取
-    cache: "no-cache",
-  });
+  const { page } = await req.json();
+  //沒有頁數直接fetch主頁
+  let res;
+  if (!page) {
+    res = await fetch(`https://www.ptt.cc/bbs/PC_Shopping/index.html`, {
+      //server端取消快取
+      cache: "no-cache",
+    });
+  } else {
+    res = res = await fetch(
+      `https://www.ptt.cc/bbs/PC_Shopping/index${page}.html`,
+      {
+        //server端取消快取
+        cache: "no-cache",
+      }
+    );
+  }
+
   //爬網址轉成text/html
   const IndexHtml = await res.text();
   //cheerio解析整張IndexHtml並用像jquery的方式Traversing DOM
@@ -39,7 +53,7 @@ export async function GET(req: NextRequest) {
     result.nextPage = "https://www.ptt.cc" + nextPage.attr("href");
   }
   /* console.log(result);
-  console.log("down"); */
+console.log("down"); */
 
   return NextResponse.json(result);
 }

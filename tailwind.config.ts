@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "dcard-main": "#1d81b3",
+        "dcard-main": "#006aa6",
         "dcard-main-dark": "#00324e",
       },
       backgroundImage: {
